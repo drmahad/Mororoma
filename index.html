@@ -192,6 +192,10 @@ details.cg .tgr{margin-top:10px}
 .tgr .c{padding:8px 10px}
 .tgr .zr{margin:0 0 3px}
 .tgr .zr input.num{padding:4px 6px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+.fg2>div{min-width:0}
+.fg2 label{display:block;font-size:12px;line-height:1.4}
+.fg2 select,.fg2 input{padding:8px;margin:2px 0 6px;font-size:16px}
 </style>
 </head><body><main id="app"></main><button id="gear" aria-label="تنظیمات" onclick="go('set')">⚙︎</button><nav id="nav"></nav>
 <script>
@@ -266,26 +270,26 @@ function head(t){return`<div class="bar"><h3>${esc(t.course)} · ${esc(t.chapter
 function go(t){tab=t;ff=null;MG=false;PD=null;if(t!='add')edit=null;render()}
 function keep(){const g=i=>document.getElementById(i);if(!ff||!g('fc'))return;Object.assign(ff,{c:g('fc').value,h:g('fh').value,y:+g('fy').value,m:+g('fm').value,d:+g('fd').value,h2:g('fh2')?g('fh2').value:ff.h2,n:g('fn')?+g('fn').value:ff.n})}
 function pickC(i){if(LP)return;keep();ff.c=S.courses[i];render()}
-function togS(i){if(LP)return;keep();const n=S.sources[i];if(n in ff.s)delete ff.s[n];else ff.s[n]={p:'b',h:''};render()}
+function togS(i){if(LP)return;keep();const n=S.sources[i];if(n in ff.s)delete ff.s[n];else ff.s[n]={p:'b',h:'',n:6};render()}
 function setPr(i,v){ff.s[S.sources[i]].p=v}
-function addSrc(){keep();const v=document.getElementById('fs').value.trim();if(v){addList('sources',v);ff.s[v]={p:'b',h:''}}render()}
+function setN(i,v){ff.s[S.sources[i]].n=+v}
+function addSrc(){keep();const v=document.getElementById('fs').value.trim();if(v){addList('sources',v);ff.s[v]={p:'b',h:'',n:6}}render()}
 function viewAdd(){const t=edit?S.topics.find(x=>x.id==edit):null;
- if(!ff){const[y,m,d]=jd(t?t.start:today());ff={c:t?t.course:'',h:t&&t.chapter!==NONAME?t.chapter:'',y,m,d,s:t&&t.source?{[t.source]:{p:t.pr||'b',h:t.mins0||''}}:{},h2:t&&!t.source?t.mins0||'':'',n:t&&t.nrev!=null?t.nrev:6}}
+ if(!ff){const[y,m,d]=jd(t?t.start:today());ff={c:t?t.course:'',h:t&&t.chapter!==NONAME?t.chapter:'',y,m,d,s:t&&t.source?{[t.source]:{p:t.pr||'b',h:t.mins0||'',n:t.nrev!=null?t.nrev:6}}:{},h2:t&&!t.source?t.mins0||'':'',n:t&&t.nrev!=null?t.nrev:6}}
  const y0=jd(today())[0];
  return`<h2>${t?'ویرایش مبحث':'افزودن مبحث جدید'}</h2><div class="c"><label>نام درس — برای حذف، روی گزینه نگه دار</label><input id="fc" value="${esc(ff.c)}"><div class="chips">${S.courses.map((x,i)=>`${ch('c',x,i,x==ff.c)}`).join('')}</div>
  <label>منبع مطالعه</label><div class="chips">${S.sources.map((x,i)=>`${ch('s',x,i,x in ff.s)}`).join('')}</div>
  <div class="row"><input id="fs" placeholder="منبع جدید..."><button class="b s" style="flex:0 0 auto;margin:4px 0 10px" onclick="addSrc()">+ منبع</button></div>
- ${Object.keys(ff.s).map(n=>{const i=S.sources.indexOf(n);return`<div class="c" style="margin:6px 0"><b>${esc(n)}</b><div class="mu">اولویت مرور این منبع؟</div><select onchange="setPr(${i},this.value)">${Object.keys(PL).map(k=>`<option value="${k}" ${ff.s[n].p==k?'selected':''}>${PL[k]}</option>`).join('')}</select><div class="mu">مدت مطالعه اول (دقیقه)</div><input class="num" type="text" inputmode="numeric" pattern="[0-9]*" lang="en" autocomplete="off" value="${ff.s[n].h}" oninput="setH(${i},this.value)"></div>`}).join('')}${Object.keys(ff.s).length?'':`<label>مدت مطالعه اول (دقیقه)</label><input id="fh2" class="num" type="text" inputmode="numeric" pattern="[0-9]*" lang="en" autocomplete="off" value="${ff.h2||''}">`}
+ ${Object.keys(ff.s).map(n=>{const i=S.sources.indexOf(n);return`<div class="c" style="margin:6px 0"><b>${esc(n)}</b><div class="fg2"><div><label>اولویت مرور</label><select onchange="setPr(${i},this.value)">${Object.keys(PL).map(k=>`<option value="${k}" ${ff.s[n].p==k?'selected':''}>${PL[k]}</option>`).join('')}</select></div><div><label>تعداد مرور</label><select onchange="setN(${i},this.value)">${[0,1,2,3,4,5,6].map(k=>`<option value="${k}" ${(ff.s[n].n==null?6:ff.s[n].n)==k?'selected':''}>${k?fa(k)+' مرور':'بدون مرور'}</option>`).join('')}</select></div><div><label>مدت مطالعه اول (دقیقه)</label><input class="num" type="text" inputmode="numeric" pattern="[0-9]*" lang="en" autocomplete="off" value="${ff.s[n].h}" oninput="setH(${i},this.value)"></div></div></div>`}).join('')}${Object.keys(ff.s).length?'':`<div class="fg2"><div><label>مدت مطالعه اول (دقیقه)</label><input id="fh2" class="num" type="text" inputmode="numeric" pattern="[0-9]*" lang="en" autocomplete="off" value="${ff.h2||''}"></div><div><label>تعداد مرور</label><select id="fn">${[0,1,2,3,4,5,6].map(k=>`<option value="${k}" ${ff.n==k?'selected':''}>${k?fa(k)+' مرور':'بدون مرور'}</option>`).join('')}</select></div></div>`}
  <label>نام فصل / مبحث</label><input id="fh" value="${esc(ff.h)}" autocomplete="off" oninput="sgIn(this,'add')" onfocus="sgIn(this,'add')"><div class="sg" id="sg_add"></div>
- <label>چند مرور برای این قسمت نیاز داری؟</label><select id="fn">${[0,1,2,3,4,5,6].map(k=>`<option value="${k}" ${ff.n==k?'selected':''}>${k?fa(k)+' مرور':'بدون مرور'}</option>`).join('')}</select>
  <label>تاریخ شروع یادگیری</label><div class="row">${opt('fd',1,31,ff.d)}${opt('fm',1,12,ff.m,MN)}${opt('fy',y0-1,y0+1,ff.y)}</div>
  ${t?'<div class="mu">تغییر تاریخ یا اولویت، برنامه را از نو می‌سازد.</div>':''}
  <button class="b" style="width:100%;margin-top:8px" onclick="submit()">${t?'ذخیره':'افزودن مبحث'}</button></div>`}
 function submit(){keep();const c=ff.c.trim(),ch=ff.h.trim()||NONAME;if(!c){alert('نام درس را وارد کنید');return}
- const st=jTo(ff.y,ff.m,ff.d),en=Object.entries(ff.s).length?Object.entries(ff.s):[['',{p:'b',h:ff.h2}]];addList('courses',c);
- en.forEach(([n,o],k)=>{const p=o.p,mn=Math.round(+o.h||0);if(n)addList('sources',n);
-  if(edit&&k==0){const t=S.topics.find(x=>x.id==edit),rs=t.start!=st||(t.pr||'b')!=p;Object.assign(t,{course:c,source:n,chapter:ch,pr:p,mins0:mn,nrev:ff.n});if(rs)Object.assign(t,{start:st,sched:sch(st,p),done:B.map(()=>null)})}
-  else{const t=mk(c,n,ch,st,p);t.mins0=mn;t.nrev=ff.n;S.topics.push(t)}});
+ const st=jTo(ff.y,ff.m,ff.d),en=Object.entries(ff.s).length?Object.entries(ff.s):[['',{p:'b',h:ff.h2,n:ff.n}]];addList('courses',c);
+ en.forEach(([n,o],k)=>{const p=o.p,mn=Math.round(+o.h||0),nr=o.n==null?6:o.n;if(n)addList('sources',n);
+  if(edit&&k==0){const t=S.topics.find(x=>x.id==edit),rs=t.start!=st||(t.pr||'b')!=p;Object.assign(t,{course:c,source:n,chapter:ch,pr:p,mins0:mn,nrev:nr});if(rs)Object.assign(t,{start:st,sched:sch(st,p),done:B.map(()=>null)})}
+  else{const t=mk(c,n,ch,st,p);t.mins0=mn;t.nrev=nr;S.topics.push(t)}});
  save();go('list')}
 function delEx(id){S.exams=S.exams.filter(e=>e.id!=id);save();render()}
 function viewCal(){const T=today();if(!cal){const[y,m]=jd(T);cal=[y,m]}const[y,m]=cal,f=jTo(y,m,1),off=wd(f);
