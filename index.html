@@ -677,15 +677,15 @@ function planBanner(){const P=planOf();if(!P)return`<div class="c"><button class
  return`<div class="c"><div class="bar"><b>📅 برنامهٔ امروز: ${hrs(P.tot)}</b><button class="b s" onclick="planAsk()">تغییر</button></div>
  <div class="mu">🔁 مرور: ${fmtM(PUSE.rv)} از ${hrs(P.rv)} · 📖 یادگیری: ${fmtM(PUSE.ln)} از ${hrs(P.ln)}</div></div>`}
 const plQ=h=>Math.round(h*4)/4;
-function planAsk(){const p=S.plan||S.planPrev||{tot:4,rv:2};PLM={tot:plQ(p.tot),rv:plQ(Math.min(p.rv,p.tot))};let m=document.getElementById('plm');if(!m){m=document.createElement('div');m.id='plm';m.className='mbk';document.body.appendChild(m)}planDraw()}
+function planAsk(){const p=S.plan||S.planPrev||{tot:4,rv:2};PLM={tot:p.tot,rv:Math.min(p.rv,p.tot)};let m=document.getElementById('plm');if(!m){m=document.createElement('div');m.id='plm';m.className='mbk';document.body.appendChild(m)}planDraw()}
 const plHM=h=>{const t=Math.round(h*60);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
-function planDraw(){const m=document.getElementById('plm');if(!m||!PLM)return;const f=(id,k)=>`<input type="time" step="900" id="${id}" lang="en" value="${plHM(PLM[k])}" style="text-align:center;direction:ltr;font-size:20px" onchange="plSet('${k}',this.value)">`;
+function planDraw(){const m=document.getElementById('plm');if(!m||!PLM)return;const f=(id,k)=>`<input type="time" id="${id}" lang="en" value="${plHM(PLM[k])}" style="text-align:center;direction:ltr;font-size:20px" onchange="plSet('${k}',this.value)">`;
  m.innerHTML=`<div class="mdl"><h3>📅 برنامهٔ مطالعهٔ امروز</h3><div class="mu">${fmt(today())}</div>
  <label>کل مطالعهٔ امروز (ساعت : دقیقه)</label>${f('plt','tot')}
  <label>سهم مرور (مرورهای روزهای قبل)</label>${f('plr','rv')}
  <div class="mu" id="pll" style="margin-top:8px">📖 یادگیری (روز صفر): ${hrs(PLM.tot-PLM.rv)}</div>
  <div class="row" style="margin-top:10px"><button class="b" style="flex:1" onclick="planSave()">ثبت برنامه</button><button class="b s" style="flex:1" onclick="planSkip()">بعداً</button></div></div>`}
-function plSet(k,v){if(!v)return;const[H,M]=v.split(':').map(Number);PLM[k]=plQ(H+M/60);if(PLM.tot<.25)PLM.tot=.25;if(PLM.rv>PLM.tot)PLM.rv=PLM.tot;
+function plSet(k,v){if(!v)return;const[H,M]=v.split(':').map(Number);PLM[k]=H+M/60;if(PLM.tot<.25)PLM.tot=.25;if(PLM.rv>PLM.tot)PLM.rv=PLM.tot;
  const a=document.getElementById('plt'),b=document.getElementById('plr'),c=document.getElementById('pll');if(a)a.value=plHM(PLM.tot);if(b)b.value=plHM(PLM.rv);if(c)c.textContent='📖 یادگیری (روز صفر): '+hrs(PLM.tot-PLM.rv)}
 function planClose(){PLM=null;const m=document.getElementById('plm');if(m)m.remove()}
 function planSave(){S.plan={d:today(),tot:PLM.tot,rv:PLM.rv,ln:PLM.tot-PLM.rv};S.planPrev={tot:PLM.tot,rv:PLM.rv};save();planClose();render()}
