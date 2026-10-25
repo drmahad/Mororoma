@@ -197,6 +197,9 @@ details.cg .tgr{margin-top:10px}
 .fg2 label{display:block;font-size:12px;line-height:1.4}
 .fg2 select,.fg2 input{padding:8px;margin:2px 0 6px;font-size:16px}
 .dim{opacity:.55}.d.off{background:rgba(56,189,248,.2);border-color:#38bdf8}#plm input[type=time]{width:85%;display:block;margin-left:auto;margin-right:auto}
+.tp2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.tp2 .c{margin:0;padding:10px 12px;min-width:0}
+.tp2 .big{font-size:16px;font-weight:800;color:var(--pr);line-height:1.35;margin-top:2px}
 </style>
 </head><body><main id="app"></main><button id="gear" aria-label="تنظیمات" onclick="go('set')">⚙︎</button><nav id="nav"></nav>
 <script>
@@ -387,7 +390,7 @@ function chartCard(){const data=studyBuckets(CM),n=data.length,W=340,H=200,Lp=12
  <div class="mu">مجموع: ${fmtM(tot)} · میانگین هر ${CM=='d'?'روز':CM=='w'?'هفته':'ماه'}: ${fmtM(Math.round(tot/n))}</div>`:'<div class="mu" style="margin:10px 0">هنوز زمانی ثبت نشده؛ هنگام ثبت هر مرور، مدت آن را وارد کن.</div>'}</div>`}
 const vp0=viewProg;viewProg=()=>{const h=vp0(),k=h.indexOf('</h2>')+5;return h.slice(0,k)+chartCard()+pctCard()+h.slice(k)};
 const vt1=viewToday;viewToday=()=>{const T=today(),h=vt1(),k=h.indexOf('</h2>')+5;let lg=0,pl=0;const tc=trList().length;S.topics.forEach(t=>{t.hist.forEach(x=>{if(x.d==T)lg+=x.m||0});const i=cur(t);if(i!==null&&t.sched[i]<=T)pl+=est(t,i)});
- return h.slice(0,k)+`<div class="c tap" role="button" onclick="go('log')"><div class="bar"><span class="mu">⏱ ساعت مطالعه امروز</span><span class="mu">جزئیات ‹</span></div><div style="font-size:26px;font-weight:800;color:var(--pr)">${fmtM(lg)}</div></div>${tc?`<div style="margin:0 0 8px"><button class="b s" onclick="go('trash')">🗑 پاک‌شده‌ها (${fa(tc)})</button></div>`:''}`+h.slice(k)};
+ return h.slice(0,k)+`<div class="tp2"><div class="c tap" role="button" onclick="go('log')"><div class="mu">⏱ ساعت مطالعه امروز</div><div class="big">${fmtM(lg)}</div></div>${planCard()}</div>${tc?`<div style="margin:0 0 8px"><button class="b s" onclick="go('trash')">🗑 پاک‌شده‌ها (${fa(tc)})</button></div>`:''}`+h.slice(k)};
 function bkData(){return JSON.stringify({app:'medrev',v:1,at:Date.now(),data:S})}
 async function bkExport(){const txt=bkData(),name='medrev-backup-'+today()+'.json';S.lastBk=today();save();
  try{const f=new File([txt],name,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'پشتیبان مرور'});render();return}}catch(e){if(e&&e.name=='AbortError')return}
@@ -718,7 +721,8 @@ function offPanel(n){const T=today(),bt='flex:0 0 auto;padding:6px 14px;font-siz
 function restBanner(){const T=today();let h='';if(isOff(T))h+=`<div class="c" style="border-color:#38bdf8">🏖 امروز روز استراحت است؛ برنامه سبک شده و بقیهٔ مرورها به روزهای بعد رفته‌اند.</div>`;
  const mv=Object.values(S.offLog||{}).flat().filter(e=>{const t=S.topics.find(x=>x.id==e.id);return t&&!t.done[e.k]&&t.sched[e.k]==T}).length;
  if(mv)h+=`<div class="c">🧭 ${fa(mv)} مرور به‌خاطر روز(های) استراحت به امروز منتقل شده است.</div>`;return h}
-const pbR=planBanner;planBanner=()=>restBanner()+pbR();
+const pbR=planBanner;planBanner=()=>restBanner();
+function planCard(){const P=planOf();return`<div class="c tap" role="button" onclick="planAsk()"><div class="mu">📅 برنامهٔ امروز</div><div class="big">${P?hrs(P.tot):'تعیین کن'}</div></div>`}
 const paR=planAsk;planAsk=function(){paR();if(isOff(today())&&!planOf()&&PLM){PLM={tot:1,rv:1};planDraw()}};
 applyTheme();
 render();
