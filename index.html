@@ -196,7 +196,8 @@ details.cg .tgr{margin-top:10px}
 .fg2>div{min-width:0}
 .fg2 label{display:block;font-size:12px;line-height:1.4}
 .fg2 select,.fg2 input{padding:8px;margin:2px 0 6px;font-size:16px}
-.dim{opacity:.55}.d.off{background:rgba(56,189,248,.2);border-color:#38bdf8}</style>
+.dim{opacity:.55}.d.off{background:rgba(56,189,248,.2);border-color:#38bdf8}#plm input[type=time]{width:85%;display:block;margin-left:auto;margin-right:auto}
+</style>
 </head><body><main id="app"></main><button id="gear" aria-label="تنظیمات" onclick="go('set')">⚙︎</button><nav id="nav"></nav>
 <script>
 const B=[0,1,2,4,8,15,30],LB=['یادگیری','روز ۱ (مرور شب)','روز ۲','روز ۴','روز ۸','روز ۱۵','روز ۳۰'];
@@ -662,7 +663,7 @@ function grpHtml(items){const g={};items.forEach(o=>{(g[o.t.course]=g[o.t.course
 /* ===== daily study plan ===== */
 let EXS=new Set(),PLM=null,PUSE={rv:0,ln:0};
 const planOf=()=>S.plan&&S.plan.d==today()?S.plan:null;
-const hrs=h=>fa(String(h).replace('.','٫'))+' ساعت';
+const hrs=h=>fmtM(Math.round(h*60));
 function bundlesBy(a,cmp){const s=a.slice().sort(cmp),u=new Set(),R=[];s.forEach(t=>{if(u.has(t))return;u.add(t);const b=[t];s.forEach(x=>{if(!u.has(x)&&x.course==t.course&&x.chapter==t.chapter){u.add(x);b.push(x)}});R.push(b)});return R}
 function planSplit(list,P){const T=today(),e0=t=>est(t,cur(t))||20,
  po=(a,b)=>((cur(a)==0)-(cur(b)==0))||todayOrder(a,b),
@@ -674,16 +675,18 @@ function planSplit(list,P){const T=today(),e0=t=>est(t,cur(t))||20,
  return{ord,out:rv.out.concat(ln.out)}}
 function planBanner(){const P=planOf();if(!P)return`<div class="c"><button class="b s" style="width:100%" onclick="planAsk()">📅 تعیین برنامهٔ مطالعهٔ امروز</button></div>`;
  return`<div class="c"><div class="bar"><b>📅 برنامهٔ امروز: ${hrs(P.tot)}</b><button class="b s" onclick="planAsk()">تغییر</button></div>
- <div class="mu">🔁 مرور: ${fmtM(PUSE.rv)} از ${hrs(P.rv)} · 📖 یادگیری: ${fmtM(PUSE.ln)} از ${hrs(P.ln)}</div>
- <div class="mu">اولویت: مرورهای روز کمتر، سپس منابع هم‌مبحث کنار هم. موارد فراتر از ظرفیت، کم‌رنگ و پایین لیست‌اند.</div></div>`}
-function planAsk(){const p=S.plan||S.planPrev||{tot:4,rv:2};PLM={tot:p.tot,rv:Math.min(p.rv,p.tot)};let m=document.getElementById('plm');if(!m){m=document.createElement('div');m.id='plm';m.className='mbk';document.body.appendChild(m)}planDraw()}
-function planDraw(){const m=document.getElementById('plm');if(!m||!PLM)return;const st=k=>`<div class="row" style="align-items:center;gap:8px"><button class="b s" style="flex:0 0 52px" onclick="plStep('${k}',-.5)">−</button><b style="flex:1;text-align:center;font-size:20px">${hrs(PLM[k])}</b><button class="b s" style="flex:0 0 52px" onclick="plStep('${k}',.5)">+</button></div>`;
+ <div class="mu">🔁 مرور: ${fmtM(PUSE.rv)} از ${hrs(P.rv)} · 📖 یادگیری: ${fmtM(PUSE.ln)} از ${hrs(P.ln)}</div></div>`}
+const plQ=h=>Math.round(h*4)/4;
+function planAsk(){const p=S.plan||S.planPrev||{tot:4,rv:2};PLM={tot:plQ(p.tot),rv:plQ(Math.min(p.rv,p.tot))};let m=document.getElementById('plm');if(!m){m=document.createElement('div');m.id='plm';m.className='mbk';document.body.appendChild(m)}planDraw()}
+const plHM=h=>{const t=Math.round(h*60);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
+function planDraw(){const m=document.getElementById('plm');if(!m||!PLM)return;const f=(id,k)=>`<input type="time" step="900" id="${id}" lang="en" value="${plHM(PLM[k])}" style="text-align:center;direction:ltr;font-size:20px" onchange="plSet('${k}',this.value)">`;
  m.innerHTML=`<div class="mdl"><h3>📅 برنامهٔ مطالعهٔ امروز</h3><div class="mu">${fmt(today())}</div>
- <label>چند ساعت برای امروز در نظر داری؟</label>${st('tot')}
- <label>چند ساعت از آن برای مرورهای روزهای قبل؟</label>${st('rv')}
- <div class="mu" style="margin-top:8px">📖 یادگیری (روز صفر): ${hrs(PLM.tot-PLM.rv)}</div>
+ <label>کل مطالعهٔ امروز (ساعت : دقیقه)</label>${f('plt','tot')}
+ <label>سهم مرور (مرورهای روزهای قبل)</label>${f('plr','rv')}
+ <div class="mu" id="pll" style="margin-top:8px">📖 یادگیری (روز صفر): ${hrs(PLM.tot-PLM.rv)}</div>
  <div class="row" style="margin-top:10px"><button class="b" style="flex:1" onclick="planSave()">ثبت برنامه</button><button class="b s" style="flex:1" onclick="planSkip()">بعداً</button></div></div>`}
-function plStep(k,v){PLM[k]=Math.max(k=='tot'?.5:0,Math.min(16,PLM[k]+v));if(PLM.rv>PLM.tot)PLM.rv=PLM.tot;planDraw()}
+function plSet(k,v){if(!v)return;const[H,M]=v.split(':').map(Number);PLM[k]=plQ(H+M/60);if(PLM.tot<.25)PLM.tot=.25;if(PLM.rv>PLM.tot)PLM.rv=PLM.tot;
+ const a=document.getElementById('plt'),b=document.getElementById('plr'),c=document.getElementById('pll');if(a)a.value=plHM(PLM.tot);if(b)b.value=plHM(PLM.rv);if(c)c.textContent='📖 یادگیری (روز صفر): '+hrs(PLM.tot-PLM.rv)}
 function planClose(){PLM=null;const m=document.getElementById('plm');if(m)m.remove()}
 function planSave(){S.plan={d:today(),tot:PLM.tot,rv:PLM.rv,ln:PLM.tot-PLM.rv};S.planPrev={tot:PLM.tot,rv:PLM.rv};save();planClose();render()}
 function planSkip(){S.planSkip=today();save();planClose()}
