@@ -669,7 +669,7 @@ const planOf=()=>S.plan&&S.plan.d==today()?S.plan:null;
 const hrs=h=>fmtM(Math.round(h*60));
 function bundlesBy(a,cmp){const s=a.slice().sort(cmp),u=new Set(),R=[];s.forEach(t=>{if(u.has(t))return;u.add(t);const b=[t];s.forEach(x=>{if(!u.has(x)&&x.course==t.course&&x.chapter==t.chapter){u.add(x);b.push(x)}});R.push(b)});return R}
 function planSplit(list,P){const T=today(),e0=t=>est(t,cur(t))||20,
- po=(a,b)=>((cur(a)==0)-(cur(b)==0))||todayOrder(a,b),
+ po=(a,b)=>((cur(b)==0)-(cur(a)==0))||todayOrder(a,b),
  pick=(a,cap)=>{let used=0,stop=false;const inn=[],out=[];bundlesBy(a,todayOrder).forEach(b=>{const e=b.reduce((x,t)=>x+e0(t),0),force=b.some(t=>t.pin==T);
   if(force||(!stop&&cap>0&&(!inn.length||used+e<=cap))){inn.push(...b);used+=e}else{stop=true;out.push(...b)}});return{inn,out,used}},
  rv=pick(list.filter(t=>cur(t)>0),Math.round(P.rv*60)),ln=pick(list.filter(t=>cur(t)==0),Math.round(P.ln*60));
