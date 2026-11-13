@@ -207,6 +207,7 @@ nav button{font-size:11px}
 .wq .wm{font-size:10px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.9}.wq .wm.dn{text-decoration:line-through;opacity:.45}
 .wq .wb{margin-top:auto;font-size:10px;color:var(--mu)}
 .wq.t{border-color:var(--pr)}.wq.sel{box-shadow:inset 0 0 0 2px var(--pr)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.two .c{margin:0}.hf{padding:12px 14px}.hv{font-size:20px;font-weight:800;color:var(--pr);margin-top:6px}
 </style>
 </head><body><main id="app"></main><button id="gear" aria-label="تنظیمات" onclick="go('set')">⚙︎</button><nav id="nav"></nav>
 <script>
@@ -332,7 +333,7 @@ function viewToday(){const T=today(),due=S.topics.filter(t=>{const i=cur(t);retu
  const pr=t=>{const l=lastFb(t);return t.resets>2?0:l=='f'?1:l=='n'?2:l=='p'?3:4};due.sort((a,b)=>pr(a)-pr(b));let hid=0;{const od=due.filter(t=>T-t.sched[cur(t)]>0&&t.pin!=T);if(od.length>=4&&!ALL&&!planOf()){const dr=od.slice(Math.ceil(od.length/2));hid=dr.length;dr.forEach(t=>due.splice(due.indexOf(t),1))}}due.sort(todayOrder);EXS=new Set();{const P=planOf();if(P){const q=planSplit(due,P);due.length=0;q.ord.forEach(t=>due.push(t));EXS=new Set(q.out.map(t=>t.id))}}
  const dn=S.topics.reduce((a,t)=>a+t.hist.filter(h=>h.d==T&&!h.x).length,0),tm=due.filter(t=>!EXS.has(t.id)).reduce((a,t)=>a+est(t,cur(t)),0);
  let wk=0;S.topics.forEach(t=>t.sched.forEach((s,i)=>{if(!t.done[i]&&s<=T+6)wk+=est(t,i)}));
- return`<h2>امروز، ${fmt(T)}${isHol(T)?' 🎉':''}</h2><div class="stat"><div><b>${fa(dn)}</b>انجام‌شده</div><div><b>${fa(due.length)}</b>باقی‌مانده</div><div><b style="font-size:14px;padding:4px 0">${fmtM(tm)}</b>زمان امروز</div></div>${planBanner()}${hid?`<div class="c">🧭 ${fa(hid)} مرور عقب‌افتاده برای امروز کنار گذاشته شد تا یک‌روزه خسته نشوی؛ ابتدا موارد مهم‌تر را مرور کن. <button class="b s" onclick="ALL=true;render()">نمایش همه</button></div>`:''}`+examCards()+
+ return`<h2>امروز، ${fmt(T)}${isHol(T)?' 🎉':''}</h2><div class="stat"><div><b>${fa(dn)}</b>انجام‌شده</div><div><b>${fa(due.length)}</b>باقی‌مانده</div><div><b style="font-size:14px;padding:4px 0">${fmtM(tm)}</b>زمان امروز</div></div>${restBanner()}${hid?`<div class="c">🧭 ${fa(hid)} مرور عقب‌افتاده برای امروز کنار گذاشته شد تا یک‌روزه خسته نشوی؛ ابتدا موارد مهم‌تر را مرور کن. <button class="b s" onclick="ALL=true;render()">نمایش همه</button></div>`:''}`+examCards()+
  (due.length?'<div class="mu" style="margin:0 0 6px">برای حذف از امروز یا ثبت مطالعهٔ روز قبل، روی یک کارت نگه دار.</div>'+grpHtml(due.map(t=>{const i=cur(t),late=T-t.sched[i],e=est(t,i);return{t,h:`<div class="c ${t.resets>2?'weak':''}${XO[t.id]?' open':''}${EXS.has(t.id)?' dim':''}" data-hc="${t.id}" onclick="cardTog(event,'${t.id}')" style="--h:${chHue(t.chapter)}">${head2(t)}<div class="stg" style="margin:6px 0"><b>${LB[i]}</b>${EXS.has(t.id)?' <span class="tag">⏳ فراتر از برنامهٔ امروز</span>':''}${t.pin==T?' <span class="tag">📌 اضافه‌شده</span>':''}${late>0?` <span class="tag" style="color:var(--red)">${fa(late)} روز تأخیر</span>`:''}${t.resets>2?' <span class="tag" style="color:var(--red)">مبحث ضعیف</span>':''}${lastFb(t)?` <span class="tag">آخرین: ${FI[lastFb(t)]}</span>`:''}</div><div class="pt">${e?'⏱ '+fmtM(e):''}</div><div class="xp">
  <div class="zr"><span>زمان:</span><input id="tm${t.id}" class="num" type="text" inputmode="numeric" pattern="[0-9]*" lang="en" autocomplete="off" value="${e||''}"></div>
  <div class="row fb"><button class="b" style="background:var(--ok)" onclick="fb('${t.id}','p')"><i>✅</i>یادآوری کامل</button><button class="b" style="background:var(--wn)" onclick="fb('${t.id}','n')"><i>⚠️</i>نیاز به مرور</button><button class="b" style="background:var(--red)" onclick="fb('${t.id}','f')"><i>❌</i>فراموشی</button></div></div></div>`}})):`<div class="c mu">امروز مروری در انتظار نیست 🌿</div>`)}
@@ -397,7 +398,7 @@ function chartCard(){const data=studyBuckets(CM),n=data.length,W=340,H=200,Lp=12
  <div class="mu">مجموع: ${fmtM(tot)} · میانگین هر ${CM=='d'?'روز':CM=='w'?'هفته':'ماه'}: ${fmtM(Math.round(tot/n))}</div>`:'<div class="mu" style="margin:10px 0">هنوز زمانی ثبت نشده؛ هنگام ثبت هر مرور، مدت آن را وارد کن.</div>'}</div>`}
 const vp0=viewProg;viewProg=()=>{const h=vp0(),k=h.indexOf('</h2>')+5;return h.slice(0,k)+chartCard()+pctCard()+fcCard()+h.slice(k)};
 const vt1=viewToday;viewToday=()=>{const T=today(),h=vt1(),k=h.indexOf('</h2>')+5;let lg=0,pl=0;const tc=trList().length;S.topics.forEach(t=>{t.hist.forEach(x=>{if(x.d==T)lg+=x.m||0});const i=cur(t);if(i!==null&&t.sched[i]<=T)pl+=est(t,i)});
- return h.slice(0,k)+`<div class="c tap" role="button" onclick="go('log')"><div class="bar"><span class="mu">⏱ ساعت مطالعه امروز</span><span class="mu">جزئیات ‹</span></div><div style="font-size:26px;font-weight:800;color:var(--pr)">${fmtM(lg)}</div></div>${tc?`<div style="margin:0 0 8px"><button class="b s" onclick="go('trash')">🗑 پاک‌شده‌ها (${fa(tc)})</button></div>`:''}`+h.slice(k)};
+ return h.slice(0,k)+`<div class="two"><div class="c tap hf" role="button" onclick="go('log')"><div class="bar"><span class="mu">⏱ مطالعهٔ امروز</span><span class="mu">‹</span></div><div class="hv">${fmtM(lg)}</div></div>${planBanner()}</div>${tc?`<div style="margin:0 0 8px"><button class="b s" onclick="go('trash')">🗑 پاک‌شده‌ها (${fa(tc)})</button></div>`:''}`+h.slice(k)};
 function bkData(){return JSON.stringify({app:'medrev',v:1,at:Date.now(),data:S})}
 async function bkExport(){const txt=bkData(),name='medrev-backup-'+today()+'.json';S.lastBk=today();save();
  try{const f=new File([txt],name,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'پشتیبان مرور'});render();return}}catch(e){if(e&&e.name=='AbortError')return}
@@ -683,9 +684,7 @@ function planSplit(list,P){const T=today(),e0=t=>est(t,cur(t))||20,
  PUSE={rv:rv.used,ln:ln.used};
  const ord=bundlesBy(rv.inn.concat(ln.inn),po).flat().concat(bundlesBy(rv.out.concat(ln.out),po).flat());
  return{ord,out:rv.out.concat(ln.out)}}
-function planBanner(){const P=planOf();if(!P)return`<div class="c"><button class="b s" style="width:100%" onclick="planAsk()">📅 تعیین برنامهٔ مطالعهٔ امروز</button></div>`;
- return`<div class="c"><div class="bar"><b>📅 برنامهٔ امروز: ${hrs(P.tot)}</b><button class="b s" onclick="planAsk()">تغییر</button></div>
- <div class="mu">🔁 مرور: ${fmtM(PUSE.rv)} از ${hrs(P.rv)} · 📖 یادگیری: ${fmtM(PUSE.ln)} از ${hrs(P.ln)}</div></div>`}
+function planBanner(){const P=planOf();return`<div class="c tap hf" role="button" onclick="planAsk()"><div class="bar"><span class="mu">📅 برنامهٔ امروز</span><span class="mu">‹</span></div><div class="hv">${P?hrs(P.tot):'تعیین کن'}</div></div>`}
 function planAsk(){const p=S.plan||S.planPrev||{tot:4,rv:2};PLM={tot:p.tot,rv:Math.min(p.rv,p.tot)};let m=document.getElementById('plm');if(!m){m=document.createElement('div');m.id='plm';m.className='mbk';document.body.appendChild(m)}planDraw()}
 const plHM=h=>{const t=Math.round(h*60);return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
 function planDraw(){const m=document.getElementById('plm');if(!m||!PLM)return;const f=(id,k)=>`<input type="time" id="${id}" lang="en" value="${plHM(PLM[k])}" style="text-align:center;direction:ltr;font-size:20px" onchange="plSet('${k}',this.value)">`;
@@ -724,10 +723,7 @@ function offPanel(n){const T=today(),bt='flex:0 0 auto;padding:6px 14px;font-siz
  h+='</div>';
  if(!isOff(n)&&n>=T&&RO)h+=`<div class="row" style="align-items:center;gap:8px;margin-top:8px"><button class="b s" style="flex:0 0 40px;padding:6px 0" onclick="rnStep(-1)">−</button><b style="flex:1;text-align:center;font-size:13px">${fa(RN)} روز از ${fmtS(n)}</b><button class="b s" style="flex:0 0 40px;padding:6px 0" onclick="rnStep(1)">+</button><button class="b" style="flex:0 0 auto;padding:6px 14px;font-size:13px" onclick="offGo(${n})">ثبت</button></div>`;
  return h}
-function restBanner(){const T=today();let h='';if(isOff(T))h+=`<div class="c" style="border-color:#38bdf8">🏖 امروز روز استراحت است؛ برنامه سبک شده و بقیهٔ مرورها به روزهای بعد رفته‌اند.</div>`;
- const mv=Object.values(S.offLog||{}).flat().filter(e=>{const t=S.topics.find(x=>x.id==e.id);return t&&!t.done[e.k]&&t.sched[e.k]==T}).length;
- if(mv)h+=`<div class="c">🧭 ${fa(mv)} مرور به‌خاطر روز(های) استراحت به امروز منتقل شده است.</div>`;return h}
-const pbR=planBanner;planBanner=()=>restBanner()+pbR();
+function restBanner(){return isOff(today())?`<div class="c" style="border-color:#38bdf8">🏖 امروز روز استراحت است؛ برنامه سبک شده است.</div>`:''}
 const paR=planAsk;planAsk=function(){paR();if(isOff(today())&&!planOf()&&PLM){PLM={tot:1,rv:1};planDraw()}};
 /* ===== forgetting curve + weekly planner ===== */
 const FCOL=['#2dd4bf','#a78bfa','#f59e0b','#38bdf8','#fb7185','#84cc16','#f472b6','#facc15'];
@@ -740,8 +736,8 @@ function fcSeries(t,T){const ev=t.hist.map(h=>({d:h.d,i:h.i,f:h.f})).sort((a,b)=
   const a=e.d-st,b=Math.min(90,k+1<all.length?all[k+1].d-st:90);if(a>90)return;
   for(let j=0;j<=18;j++){const x=Math.expm1(Math.log1p(a)+(Math.log1p(b)-Math.log1p(a))*j/18);pts.push([x,fcR(x-a,s),(x+st)>T||!!e.u])}});
  return pts}
-function fcTog(i){const c=fcCourses()[i];S.fcHide=S.fcHide||[];const j=S.fcHide.indexOf(c);j<0?S.fcHide.push(c):S.fcHide.splice(j,1);save();render()}
-function fcCard(){S.fcHide=S.fcHide||[];const T=today(),W=340,H=240,Lp=42,Rp=10,Tp=16,Bt=30,L90=Math.log1p(90),
+function fcTog(i){const c=fcCourses()[i];S.fcHide=S.fcHide||[];const j=S.fcHide.indexOf(c);j<0?S.fcHide.push(c):S.fcHide.splice(j,1);FCSEL=null;save();render()}
+function fcCard(){S.fcHide=S.fcHide||[];FCD=[];const T=today(),W=340,H=240,Lp=42,Rp=10,Tp=16,Bt=30,L90=Math.log1p(90),
  X=x=>Lp+Math.log1p(x)/L90*(W-Lp-Rp),Y=r=>Tp+(H-Tp-Bt)*(1-r),cs=fcCourses(),col=c=>FCOL[cs.indexOf(c)%FCOL.length],g={};
  S.topics.forEach(t=>{if(!t.hist.length)return;const k=t.course+'|'+t.chapter;if(!g[k]||t.hist.length>g[k].hist.length)g[k]=t});
  const tops=Object.values(g),cu=[...new Set(tops.map(t=>t.course))];
@@ -753,11 +749,14 @@ function fcCard(){S.fcHide=S.fcHide||[];const T=today(),W=340,H=240,Lp=42,Rp=10,
  tops.filter(t=>!S.fcHide.includes(t.course)).forEach(t=>{const p=fcSeries(t,T);if(!p||!p.length)return;const c=col(t.course);let cur=[],ty=p[0][2];const segs=[];
   p.forEach(q=>{if(q[2]!==ty){segs.push([ty,cur]);cur=[cur[cur.length-1]];ty=q[2]}cur.push(q)});segs.push([ty,cur]);
   segs.forEach(([u,a])=>{if(a.length>1)paths+=`<path d="M${a.map(q=>X(q[0]).toFixed(1)+' '+Y(q[1]).toFixed(1)).join('L')}" fill="none" stroke="${c}" stroke-width="1.7" opacity=".9" ${u?'stroke-dasharray="4 3"':''}/>`});
-  const now=p.filter(q=>!q[2]).pop();if(now)dots+=`<circle cx="${X(now[0])}" cy="${Y(now[1])}" r="3.2" fill="${c}" stroke="#fff" stroke-width="1"/>`});
+  const pk=[];p.forEach(q=>{if(!q[2]&&q[1]>.999&&!pk.some(z=>Math.abs(z[0]-q[0])<.01))pk.push(q)});const now=p.filter(q=>!q[2]).pop();if(now&&!pk.some(z=>Math.abs(z[0]-now[0])<.01))pk.push(now);
+  pk.forEach(q=>{const i=FCD.length;FCD.push({x:q[0],y:q[1],name:t.chapter,course:t.course,c});dots+=`<circle cx="${X(q[0]).toFixed(1)}" cy="${Y(q[1]).toFixed(1)}" r="11" fill="transparent" style="cursor:pointer" onclick="fcPick(${i})"/><circle cx="${X(q[0]).toFixed(1)}" cy="${Y(q[1]).toFixed(1)}" r="4" fill="${fcDot(c)}" stroke="#fff" stroke-width="1.3" pointer-events="none"/>`})});
+ const sd=FCD[FCSEL];let tip='';if(sd){const nm=sd.name||'—',tw=Math.max(70,Math.max(nm.length,sd.course.length+6)*5.6+16),bx=Math.min(W-Rp-tw,Math.max(Lp,X(sd.x)-tw/2)),by=Math.max(Tp,Y(sd.y)-36);
+ tip=`<circle cx="${X(sd.x)}" cy="${Y(sd.y)}" r="7" fill="none" stroke="#fff" stroke-width="1.5"/><g pointer-events="none"><rect x="${bx}" y="${by}" width="${tw}" height="28" rx="9" fill="rgba(12,22,20,.94)" stroke="${sd.c}"/><text x="${bx+tw/2}" y="${by+12}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">${esc(nm)}</text><text x="${bx+tw/2}" y="${by+23}" text-anchor="middle" font-size="8.5" fill="#b9cdc8">${esc(sd.course)} · ${fa(Math.round(sd.y*100))}٪</text></g>`}
  return`<div class="c"><h3>📉 منحنی فراموشی (ابینگهاوس)</h3><div class="mu">هر منحنی یک مبحث است و از روز اولین مطالعه‌اش شروع می‌شود. با هر مرور، افت کندتر می‌شود.</div>
- <svg viewBox="0 0 ${W} ${H}" width="100%" style="margin-top:8px">${grid}${xt}<path d="${base}" fill="none" style="stroke:var(--tx)" stroke-width="2.4" opacity=".7"/>${paths}${dots}
+ <svg viewBox="0 0 ${W} ${H}" width="100%" style="margin-top:8px">${grid}${xt}<path d="${base}" fill="none" style="stroke:var(--tx)" stroke-width="2.4" opacity=".7"/>${paths}${dots}${tip}
  <text x="${Lp+4}" y="${Tp-3}" font-size="9" style="fill:var(--mu)">درصد یادآوری</text><text x="${W-Rp}" y="${H-4}" text-anchor="end" font-size="9" style="fill:var(--mu)">روز</text></svg>
- <div class="mu">━ خط ضخیم: بدون مرور · خط ممتد: انجام‌شده · خط‌چین: مرورهای برنامه‌ریزی‌شده · ● وضعیت امروز</div>
+ <div class="mu">━ خط ضخیم: بدون مرور · خط ممتد: انجام‌شده · خط‌چین: مرورهای برنامه‌ریزی‌شده · ● روی نقطه بزن تا نام مبحث نمایش داده شود</div>
  <div class="chips" style="margin-top:8px">${cu.map(c=>{const on=!S.fcHide.includes(c);return`<button class="chip" style="border-color:${col(c)};${on?`background:${col(c)}55`:'opacity:.5'}" onclick="fcTog(${cs.indexOf(c)})">${on?'●':'○'} ${esc(c)}</button>`}).join('')}</div></div>`}
 /* weekly planner */
 let WKO=0;const WDN=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
@@ -787,6 +786,9 @@ const wkF=id=>S.wk.find(x=>x.id==id);
 function wkTog(id){const x=wkF(id);x.done=!x.done;save();render()}
 function wkMove(id,v){wkF(id).day=v===''?null:+v;save();render()}
 function wkDel(id){if(confirm('این مورد از برنامهٔ هفتگی حذف شود؟')){S.wk=S.wk.filter(x=>x.id!=id);save();render()}}
+let FCD=[],FCSEL=null;
+const fcDot=c=>{const n=parseInt(c.slice(1),16),m=v=>Math.round(v+(255-v)*.5);return'#'+[n>>16&255,n>>8&255,n&255].map(v=>m(v).toString(16).padStart(2,'0')).join('')};
+function fcPick(i){FCSEL=FCSEL===i?null:i;render()}
 applyTheme();
 render();
 planAuto();
